@@ -5,7 +5,7 @@ Utils utils = Utils();
 class AppConfig {
   AppConfig._();
 
-  static const String baseUrl = 'https://hexanetwork.in:3035/api/';
+  static const String baseUrl = 'https://7hglmg7p-3030.inc1.devtunnels.ms/api/';
   // static const String socketBaseUrl = 'https://hexanetwork.in:3035';
   static const String socketBaseUrl = 'https://7hglmg7p-3030.inc1.devtunnels.ms/';
   static const int timeoutDuration = 10000;

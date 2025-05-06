@@ -19,11 +19,21 @@ class LoginScreen extends StatelessWidget {
         ),
         backgroundColor: Colors.blue,
       ),
-      body: Center(
-        child: ElevatedButton(
-          onPressed: () => controller.onLoginPress(),
-          child: Text('Login'),
-        ),
+      body: Column(
+        children: [
+          Center(
+            child: ElevatedButton(
+              onPressed: () => controller.onLoginPress('kinjal.kmphitech'),
+              child: Text('Kinjal Login'),
+            ),
+          ),
+          Center(
+            child: ElevatedButton(
+              onPressed: () => controller.onLoginPress('rutvik.kmphitech'),
+              child: Text('Rutvik Login'),
+            ),
+          ),
+        ],
       ),
     );
   }

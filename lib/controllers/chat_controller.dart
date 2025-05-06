@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:chat_demo/models/chatModel/chat_message_model.dart';
 import 'package:chat_demo/models/chatModel/chat_user_model.dart';
 import 'package:chat_demo/ui/chat/conversation_screen.dart';
@@ -26,6 +24,9 @@ class ChatController extends GetxController {
   final socket = io.io(AppConfig.socketBaseUrl, <String, dynamic>{
     'transports': ['websocket'],
     'autoConnect': true,
+    'reconnection': true,
+    'reconnectionAttempts': 5,
+    'reconnectionDelay': 1000,
   });
 
   void connectToSocket() {
@@ -43,8 +44,8 @@ class ChatController extends GetxController {
       socket.off(SocketKey.updateChatList);
       socket.off(SocketKey.setChatUserList);
 
-      socket.emit(SocketKey.socketLeave, user.data?.id);
-      socket.emit(SocketKey.socketJoin, user.data?.id);
+      socket.emit(SocketKey.socketLeave, {'userId': user.data?.id});
+      socket.emit(SocketKey.socketJoin, {'userId': user.data?.id});
 
       socket.on(SocketKey.setSocketJoin, (data) => printAction('-----setSocketJoin: $data'));
 
@@ -68,7 +69,13 @@ class ChatController extends GetxController {
               return isMatch;
             });
 
-            if (!isUserMatch) chatUsers.add(c);
+            if (isUserMatch) {
+              final index = chatUsers.indexWhere((cu) => cu.chatDetails?.userId == c.chatDetails?.userId);
+
+              chatUsers[index] = c;
+            } else {
+              chatUsers.add(c);
+            }
           },
         );
 
@@ -85,13 +92,11 @@ class ChatController extends GetxController {
         if (!socket.connected) connectToSocket();
 
         printAction('-----updateChatList Received message: $data');
-        // var temp = ResData.fromJson(data["resData"]);
+        final temp = ChatList.fromJson(data);
 
-        // chatUsers.removeWhere((cu) => cu.id == temp.id);
-        // chatSearchUsers.removeWhere((cu) => cu.id == temp.id);
+        chatUsers.removeWhere((cu) => cu.chatDetails?.userId == temp.chatDetails?.userId);
 
-        // chatUsers.insert(0, temp);
-        // chatSearchUsers.insert(0, temp);
+        chatUsers.insert(0, temp);
 
         printAction('-----chatUsers=${chatUsers.length}');
       });
@@ -121,8 +126,8 @@ class ChatController extends GetxController {
 
         var temp = Message.fromJson(data);
 
-        printAction('-----otherUser.value.roomId: ${otherUser.value.roomId}');
-        printAction('-----temp.roomId: ${temp.roomId}');
+        // printAction('-----temp.roomId: ${temp.roomId}');
+        // printAction('-----otherUser.value.roomId: ${otherUser.value.roomId}');
         printAction('-----temp.message: ${temp.message}');
         printWarning('-----otherUser.value.roomId == temp.roomId: ${otherUser.value.roomId == temp.roomId}');
         if (otherUser.value.roomId == temp.roomId) chats.insert(0, temp);
@@ -130,7 +135,7 @@ class ChatController extends GetxController {
         // goToBottom();
 
         printAction('-----chats=${chats.length}');
-        getChatUserList();
+        // getChatUserList();
       });
 
       getChatUserList();
@@ -213,7 +218,8 @@ class ChatController extends GetxController {
     printAction("------------socket.connected=${socket.connected}");
     if (!socket.connected) connectToSocket();
 
-    if (chatMsgController.text.trim().isEmpty) {
+    final message = chatMsgController.text.trim();
+    if (message.isEmpty) {
       utils.showToast(
         isError: true,
         message: 'Please enter message',
@@ -221,30 +227,26 @@ class ChatController extends GetxController {
       return;
     }
 
-    var msg = chatMsgController.text;
-
-    var curDate = DateTime.now().toUtc();
-
-    chats.insert(
-      0,
-      Message(
-        message: msg,
-        mediaUrl: '',
-        msgType: 'text',
-        messageId: '-',
-        createdAt: curDate,
-        sender: Sender(
-          name: user.data?.name,
-          senderId: user.data?.id,
-          profile: user.data?.profile,
-        ),
+    final curDate = DateTime.now().toUtc();
+    final newMessage = Message(
+      message: message,
+      mediaUrl: '',
+      msgType: 'text',
+      messageId: '-',
+      createdAt: curDate,
+      sender: Sender(
+        name: user.data?.name,
+        senderId: user.data?.id,
+        profile: user.data?.profile,
       ),
     );
+
+    chats.insert(0, newMessage);
 
     final data = {
       'sender': user.data?.id,
       'receiver': otherUser.value.chatDetails?.userId,
-      'message': msg,
+      'message': message,
       'messageType': 'text',
       'createdAt': '$curDate',
       'chatType': otherUser.value.chatType,
@@ -261,6 +263,8 @@ class ChatController extends GetxController {
   }
 
   void goToBottom() {
+    if (chats.isEmpty) return;
+
     for (var t in [200, 400, 800, 1000]) {
       Future.delayed(
         Duration(milliseconds: t),
@@ -292,7 +296,7 @@ class ChatController extends GetxController {
     if (userDetail != null) {
       otherUser.value = userDetail;
       isLoading.value = true;
-      Get.to(ConversationScreen());
+      Get.to(() => ConversationScreen());
       getMessageList();
     }
   }
@@ -304,9 +308,6 @@ class ChatController extends GetxController {
     if (getIt<SharedPreferences>().getIsUserLogin ?? false) {
       final userData = getIt<SharedPreferences>().getLoginData;
       if (userData != null) user.data = userData;
-
-      //
-      user.data?.id = Platform.isIOS ? '67f0e981be04059b4eab70c2' : '67f0e8d2be04059b4eab70b7';
     }
 
     super.onInit();
@@ -315,7 +316,10 @@ class ChatController extends GetxController {
   @override
   void onClose() {
     disconnectSocket();
-
+    scrollController.dispose();
+    searchController.dispose();
+    chatMsgController.dispose();
+    refreshController.dispose();
     super.onClose();
   }
 }

@@ -28,12 +28,21 @@ class ChatUsersScreen extends StatelessWidget {
             TextFormField(
               decoration: InputDecoration(
                 hintText: 'Search',
-                prefixIcon: Icon(
+                prefixIcon: const Icon(
                   Icons.search,
                   color: Colors.grey,
                 ),
-                fillColor: Colors.grey.shade300,
+                filled: true,
+                fillColor: Colors.grey.shade200,
                 border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: Colors.grey.shade700),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: Colors.grey.shade700),
+                ),
+                focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide(color: Colors.grey.shade700),
                 ),
@@ -69,16 +78,16 @@ class ChatUsersScreen extends StatelessWidget {
                           primary: false,
                           shrinkWrap: true,
                           itemCount: controller.chatUsers.length,
-                          padding: EdgeInsets.symmetric(horizontal: 20),
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
                           itemBuilder: (BuildContext context, int index) {
-                            var user = controller.chatUsers[index];
-                            var isTodayDate = utils.isTodayDate(dateA: '${user.lastMessage?.createdAt}');
+                            final user = controller.chatUsers[index];
+                            final isTodayDate = utils.isTodayDate(dateA: '${user.lastMessage?.createdAt}');
 
                             return GestureDetector(
                               onTap: () => controller.goToMessageView(user),
                               child: Container(
-                                padding: EdgeInsets.all(10),
-                                margin: EdgeInsets.only(bottom: 12),
+                                padding: const EdgeInsets.all(10),
+                                margin: const EdgeInsets.only(bottom: 12),
                                 decoration: BoxDecoration(
                                   color: Colors.grey.shade200,
                                   borderRadius: BorderRadius.circular(12),
@@ -86,7 +95,7 @@ class ChatUsersScreen extends StatelessWidget {
                                 child: Row(
                                   children: [
                                     Container(
-                                      margin: EdgeInsets.only(right: 10, left: 2),
+                                      margin: const EdgeInsets.only(right: 10, left: 2),
                                       decoration: BoxDecoration(
                                         color: Colors.grey,
                                         borderRadius: BorderRadius.circular(53),
@@ -98,16 +107,12 @@ class ChatUsersScreen extends StatelessWidget {
                                           fit: BoxFit.cover,
                                           height: 53,
                                           width: 53,
-                                          errorWidget: (context, url, error) {
-                                            return Center(
-                                              child: Image.asset(
-                                                Assets.images.user.path,
-                                                fit: BoxFit.cover,
-                                                // height: 25,
-                                                // width: 25,
-                                              ),
-                                            );
-                                          },
+                                          errorWidget: (context, url, error) => Center(
+                                            child: Image.asset(
+                                              Assets.images.user.path,
+                                              fit: BoxFit.cover,
+                                            ),
+                                          ),
                                           progressIndicatorBuilder: (context, url, downloadProgress) => Center(
                                             child: CircularProgressIndicator(
                                               color: Colors.blue,

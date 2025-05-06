@@ -8,11 +8,11 @@ import 'package:chat_demo/ui/chat/chat_users_screen.dart';
 class AuthController extends GetxController {
   AuthModel user = AuthModel.fromJson({});
 
-  Future<void> onLoginPress() async {
+  Future<void> onLoginPress(String email) async {
     await getIt<AuthService>()
         .login(
-      pass: '123456',
-      email: 'mayur.kmphasis@gmail.com',
+      pass: 'f925916e2754e5e03f75dd58a5733251',
+      email: '$email@gmail.com',
     )
         .handler(
       null,
@@ -22,7 +22,7 @@ class AuthController extends GetxController {
         getIt<SharedPreferences>().setToken = value.data?.token;
         if (value.data != null) getIt<SharedPreferences>().setLoginData = value.data!;
 
-        Get.offAll(ChatUsersScreen());
+        Get.to(() => ChatUsersScreen());
 
         utils.showToast(message: value.message ?? 'Login Successfully');
       },
@@ -34,7 +34,7 @@ class AuthController extends GetxController {
 
   @override
   void onReady() {
-    if (getIt<SharedPreferences>().getIsUserLogin ?? false) Get.offAll(ChatUsersScreen());
+    // if (getIt<SharedPreferences>().getIsUserLogin ?? false) Get.offAll(ChatUsersScreen());
 
     super.onReady();
   }

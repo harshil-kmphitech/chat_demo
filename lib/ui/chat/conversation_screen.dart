@@ -17,7 +17,7 @@ class ConversationScreen extends GetView<ChatController> {
         appBar: AppBar(
           title: Text(
             controller.otherUser.value.chatDetails?.name ?? '',
-            style: TextStyle(
+            style: const TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.bold,
             ),
@@ -146,10 +146,18 @@ class ConversationScreen extends GetView<ChatController> {
                           decoration: InputDecoration(
                             hintText: 'Type a message',
                             border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(18),
-                              borderSide: BorderSide(color: Colors.grey),
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(color: Colors.grey.shade700),
                             ),
-                            suffix: GestureDetector(
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(color: Colors.grey.shade700),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(color: Colors.grey.shade700),
+                            ),
+                            suffixIcon: GestureDetector(
                               onTap: () => controller.sendMessage(),
                               child: Icon(Icons.send_rounded).paddingOnly(left: 10),
                             ),

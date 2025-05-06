@@ -14,7 +14,7 @@ class _RefreshTokenService implements RefreshTokenService {
     this.baseUrl,
     this.errorLogger,
   }) {
-    baseUrl ??= 'https://hexanetwork.in:3035/api/';
+    baseUrl ??= 'https://7hglmg7p-3030.inc1.devtunnels.ms/api/';
   }
 
   final Dio _dio;
