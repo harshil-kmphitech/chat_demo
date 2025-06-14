@@ -10,11 +10,16 @@ class AuthController extends GetxController {
   AuthModel user = AuthModel.fromJson({});
 
   Future<void> onLoginPress(String email) async {
+    if (getIt<SharedPreferences>().getFcmToken == null) await NotificationService().getFirebaseTokenAndSave();
+    var fcmToken = getIt<SharedPreferences>().getFcmToken;
+
+    if (fcmToken == null) utils.showToast(message: 'Notification will not work');
+
     await getIt<AuthService>()
         .login(
       pass: 'f925916e2754e5e03f75dd58a5733251',
       email: '$email@gmail.com',
-      deviceToken: getIt<SharedPreferences>().getFcmToken ?? '-',
+      deviceToken: fcmToken ?? '-',
     )
         .handler(
       null,

@@ -12,12 +12,11 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 class NotificationService {
   void initialize() async {
     try {
+      await Firebase.initializeApp();
       FirebaseMessaging.onBackgroundMessage(NotificationService.backgroundHandler);
     } catch (e) {
       'Background handler error: $e'.log;
     }
-
-    await FirebaseMessaging.instance.requestPermission();
 
     await init();
     await getFirebaseTokenAndSave();
@@ -68,6 +67,13 @@ class NotificationService {
   }
 
   Future<void> _configureFirebaseMessaging() async {
+    // Request permission for iOS
+    await firebaseMessaging.requestPermission(
+      alert: true,
+      badge: true,
+      sound: true,
+    );
+
     FirebaseMessaging.onMessageOpenedApp.listen((message) {
       'Background payload: ${message.data}'.log;
       _handleNavigation();
@@ -79,7 +85,11 @@ class NotificationService {
       // _handleNavigation();
     }
 
-    await firebaseMessaging.setForegroundNotificationPresentationOptions(alert: true, badge: true, sound: true);
+    await firebaseMessaging.setForegroundNotificationPresentationOptions(
+      alert: true,
+      badge: true,
+      sound: true,
+    );
   }
 
   void _listenToForegroundMessages() {
@@ -112,12 +122,27 @@ class NotificationService {
   void _handleNavigation() => {};
 
   Future<void> getFirebaseTokenAndSave() async {
+    'getFirebaseTokenAndSave'.log;
+
     try {
+      // Enable auto initialization
+      await firebaseMessaging.setAutoInitEnabled(true);
+
+      // Request permission for iOS
+      await firebaseMessaging.requestPermission(
+        alert: true,
+        badge: true,
+        sound: true,
+      );
+
+      // Get the token
       String? token = await firebaseMessaging.getToken();
 
       if (token != null) {
         'Firebase Token: $token'.log;
         getIt<SharedPreferences>().setFcmToken = token;
+      } else {
+        'Failed to get FCM token'.log;
       }
     } catch (e) {
       'Error fetching FCM token: $e'.log;
@@ -126,5 +151,6 @@ class NotificationService {
 
   static Future<void> backgroundHandler(RemoteMessage message) async {
     await Firebase.initializeApp();
+    'Handling a background message: ${message.messageId}'.log;
   }
 }
