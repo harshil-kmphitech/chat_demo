@@ -17,6 +17,8 @@ class NotificationService {
       'Background handler error: $e'.log;
     }
 
+    await FirebaseMessaging.instance.requestPermission();
+
     await init();
     await getFirebaseTokenAndSave();
   }

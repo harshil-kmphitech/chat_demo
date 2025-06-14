@@ -14,7 +14,7 @@ class _AuthService implements AuthService {
     this.baseUrl,
     this.errorLogger,
   }) {
-    baseUrl ??= 'https://7hglmg7p-3030.inc1.devtunnels.ms/api/';
+    baseUrl ??= 'https://hexanetwork.in:3035/api/';
   }
 
   final Dio _dio;

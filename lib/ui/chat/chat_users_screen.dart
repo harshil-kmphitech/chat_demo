@@ -1,7 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chat_demo/controllers/chat_controller.dart';
-import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:chat_demo/helpers/all.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 class ChatUsersScreen extends StatelessWidget {
   const ChatUsersScreen({super.key});

@@ -1,5 +1,6 @@
 import 'package:chat_demo/controllers/chat_controller.dart';
 import 'package:chat_demo/helpers/all.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 class ConversationScreen extends GetView<ChatController> {
   const ConversationScreen({super.key});
@@ -11,6 +12,7 @@ class ConversationScreen extends GetView<ChatController> {
         controller.getChatUserList();
         printAction("------------roomLeave");
         controller.socket.emit(SocketKey.roomLeave, {'userId': controller.user.data?.id, 'roomId': controller.otherUser.value.roomId});
+        controller.refreshController2.loadComplete();
       },
       child: Scaffold(
         backgroundColor: Colors.white,
@@ -40,89 +42,101 @@ class ConversationScreen extends GetView<ChatController> {
                                 fit: BoxFit.fill,
                               ),
                             )
-                          : ListView.builder(
-                              reverse: true,
+                          : SmartRefresher(
                               primary: false,
-                              padding: EdgeInsets.zero,
-                              itemCount: controller.chats.length,
-                              itemBuilder: (context, index) {
-                                var chat = controller.chats[index];
-                                var isMe = chat.sender?.senderId == controller.user.data?.id;
-                                var isShowDate = true;
-                                var isToday = false;
-                                var isYesterday = false;
+                              enablePullDown: false,
+                              controller: controller.refreshController2,
+                              enablePullUp: controller.totalRecords > controller.chats.length,
+                              // enablePullUp: true,
+                              onLoading: () => controller.getMessageList(isClear: false),
+                              // onLoading: () => '--- onLoading'.log,
+                              // onRefresh: () => '--- onRefresh'.log,
+                              // onTwoLevel: (isOpen) => '--- onTwoLevel'.log,
+                              child: ListView.builder(
+                                reverse: true,
+                                primary: false,
+                                padding: EdgeInsets.zero,
+                                itemCount: controller.chats.length,
+                                controller: controller.scrollController,
+                                itemBuilder: (context, index) {
+                                  var chat = controller.chats[index];
+                                  var isMe = chat.sender?.senderId == controller.user.data?.id;
+                                  var isShowDate = true;
+                                  var isToday = false;
+                                  var isYesterday = false;
 
-                                if (index != (controller.chats.length - 1)) {
-                                  isShowDate = DateTime.parse(
-                                        utils.getFormatedDate(dateFormate: 'yyyy-MM-dd', date: '${chat.createdAt}'),
-                                      ).compareTo(DateTime.parse(
-                                        utils.getFormatedDate(dateFormate: 'yyyy-MM-dd', date: '${controller.chats[index + 1].createdAt}'),
-                                      )) ==
-                                      1;
-                                }
-                                if (isShowDate) {
-                                  isToday = utils.isTodayDate(dateA: '${chat.createdAt}');
-                                  isYesterday = utils.isYesterdayDate(dateA: '${chat.createdAt}');
-                                }
+                                  if (index != (controller.chats.length - 1)) {
+                                    isShowDate = DateTime.parse(
+                                          utils.getFormatedDate(dateFormate: 'yyyy-MM-dd', date: '${chat.createdAt}'),
+                                        ).compareTo(DateTime.parse(
+                                          utils.getFormatedDate(dateFormate: 'yyyy-MM-dd', date: '${controller.chats[index + 1].createdAt}'),
+                                        )) ==
+                                        1;
+                                  }
+                                  if (isShowDate) {
+                                    isToday = utils.isTodayDate(dateA: '${chat.createdAt}');
+                                    isYesterday = utils.isYesterdayDate(dateA: '${chat.createdAt}');
+                                  }
 
-                                return Align(
-                                  alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
-                                  child: Column(
-                                    crossAxisAlignment: isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-                                    children: [
-                                      if (isShowDate)
-                                        Row(
-                                          children: [
-                                            const Expanded(child: Divider(color: Colors.grey)),
-                                            Text(
-                                              isToday
-                                                  ? 'Today'
-                                                  : isYesterday
-                                                      ? 'Yesterday'
-                                                      : utils.getFormatedDate(dateFormate: "dd MMM yyyy", date: '${chat.createdAt}'),
-                                              style: TextStyle(
-                                                fontSize: 14,
-                                                // fontFamily: FontFamily.regular,
-                                              ),
-                                            ).marginSymmetric(horizontal: 10),
-                                            const Expanded(child: Divider(color: Colors.grey)),
-                                          ],
-                                        ).marginOnly(bottom: 10),
-                                      Container(
-                                        padding: EdgeInsets.all(12),
-                                        margin: EdgeInsets.only(bottom: 5, left: isMe ? 60 : 0, right: isMe ? 0 : 60),
-                                        decoration: BoxDecoration(
-                                          color: isMe ? Colors.blue : Colors.grey,
-                                          borderRadius: BorderRadius.only(
-                                            topLeft: Radius.circular(12),
-                                            topRight: Radius.circular(12),
-                                            bottomLeft: Radius.circular(isMe ? 12 : 0),
-                                            bottomRight: Radius.circular(isMe ? 0 : 12),
+                                  return Align(
+                                    alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
+                                    child: Column(
+                                      crossAxisAlignment: isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+                                      children: [
+                                        if (isShowDate)
+                                          Row(
+                                            children: [
+                                              const Expanded(child: Divider(color: Colors.grey)),
+                                              Text(
+                                                isToday
+                                                    ? 'Today'
+                                                    : isYesterday
+                                                        ? 'Yesterday'
+                                                        : utils.getFormatedDate(dateFormate: "dd MMM yyyy", date: '${chat.createdAt}'),
+                                                style: TextStyle(
+                                                  fontSize: 14,
+                                                  // fontFamily: FontFamily.regular,
+                                                ),
+                                              ).marginSymmetric(horizontal: 10),
+                                              const Expanded(child: Divider(color: Colors.grey)),
+                                            ],
+                                          ).marginOnly(bottom: 10),
+                                        Container(
+                                          padding: EdgeInsets.all(12),
+                                          margin: EdgeInsets.only(bottom: 5, left: isMe ? 60 : 0, right: isMe ? 0 : 60),
+                                          decoration: BoxDecoration(
+                                            color: isMe ? Colors.blue : Colors.grey,
+                                            borderRadius: BorderRadius.only(
+                                              topLeft: Radius.circular(12),
+                                              topRight: Radius.circular(12),
+                                              bottomLeft: Radius.circular(isMe ? 12 : 0),
+                                              bottomRight: Radius.circular(isMe ? 0 : 12),
+                                            ),
+                                          ),
+                                          child: Text(
+                                            chat.message ?? '',
+                                            maxLines: 10,
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              // fontFamily: FontFamily.regular,
+                                              color: isMe ? Colors.white : Colors.black,
+                                            ),
                                           ),
                                         ),
-                                        child: Text(
-                                          chat.message ?? '',
+                                        Text(
+                                          utils.getFormatedDate(dateFormate: "hh:mm a", date: '${chat.createdAt}').toUpperCase(),
                                           maxLines: 10,
                                           style: TextStyle(
-                                            fontSize: 14,
+                                            fontSize: 12,
+                                            color: Colors.grey,
                                             // fontFamily: FontFamily.regular,
-                                            color: isMe ? Colors.white : Colors.black,
                                           ),
-                                        ),
-                                      ),
-                                      Text(
-                                        utils.getFormatedDate(dateFormate: "hh:mm a", date: '${chat.createdAt}').toUpperCase(),
-                                        maxLines: 10,
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          color: Colors.grey,
-                                          // fontFamily: FontFamily.regular,
-                                        ),
-                                      ).marginOnly(bottom: 12),
-                                    ],
-                                  ),
-                                );
-                              },
+                                        ).marginOnly(bottom: 12),
+                                      ],
+                                    ),
+                                  );
+                                },
+                              ),
                             ),
                 ),
               ),

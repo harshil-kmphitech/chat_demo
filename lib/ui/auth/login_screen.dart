@@ -33,6 +33,12 @@ class LoginScreen extends StatelessWidget {
               child: Text('Rutvik Login'),
             ),
           ),
+          Center(
+            child: ElevatedButton(
+              onPressed: () => controller.onLoginPress('meet.kmphitech'),
+              child: Text('Meet Login'),
+            ),
+          ),
         ],
       ),
     );

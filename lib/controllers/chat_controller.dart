@@ -12,6 +12,7 @@ class ChatController extends GetxController {
   RxBool isLoading = false.obs;
   RxBool isLoadMoreUsers = false.obs;
 
+  var totalRecords = 0;
   var chats = <Message>[].obs;
   var otherUser = ChatList().obs;
   var chatUsers = <ChatList>[].obs;
@@ -20,6 +21,7 @@ class ChatController extends GetxController {
   final searchController = TextEditingController();
   final chatMsgController = TextEditingController();
   final refreshController = RefreshController(initialRefresh: false);
+  final refreshController2 = RefreshController(initialRefresh: false);
 
   final socket = io.io(AppConfig.socketBaseUrl, <String, dynamic>{
     'transports': ['websocket'],
@@ -110,8 +112,9 @@ class ChatController extends GetxController {
 
         printAction('-----setMessageList Received message: $data');
         var temp = ChatMessageModel.fromJson(data);
-        chats.clear();
+        if (totalRecords == 0) chats.clear();
 
+        totalRecords = temp.resData?.totalRecords ?? 0;
         temp.resData?.messages?.forEach((m) => chats.insert(0, m));
         // temp.resData?.messages?.forEach((m) => chats.add(m));
 
@@ -119,8 +122,10 @@ class ChatController extends GetxController {
 
         isLoading.value = false;
         printAction('-----chats=${chats.length}');
+        printAction("------------totalRecords=$totalRecords");
 
-        goToBottom();
+        if (totalRecords == 0) goToBottom();
+        if (totalRecords != 0) refreshController2.loadComplete();
       });
 
       socket.on(SocketKey.setNewMessage, (data) {
@@ -198,22 +203,23 @@ class ChatController extends GetxController {
     socket.emit(SocketKey.getChatUserList, data);
   }
 
-  void getMessageList() {
+  void getMessageList({bool isClear = false}) {
     printAction("------------getMessageList");
     printAction("------------socket.connected=${socket.connected}");
-    chatMsgController.clear();
+    printAction("------------isClear=$isClear ---chats.length=${chats.length} ---totalRecords=$totalRecords");
+    if (isClear) chatMsgController.clear();
 
     if (!socket.connected) connectToSocket();
 
     final data = {
       'userId': user.data?.id,
       'roomId': otherUser.value.roomId,
-      'offset': 0,
-      'limit': 100,
+      'offset': chats.length,
+      'limit': 10,
       'search': '',
     };
 
-    socket.emit(SocketKey.roomJoin, {'userId': user.data?.id, 'roomId': otherUser.value.roomId});
+    if (isClear) socket.emit(SocketKey.roomJoin, {'userId': user.data?.id, 'roomId': otherUser.value.roomId});
     socket.emit(SocketKey.getMessageList, data);
   }
 
@@ -269,20 +275,21 @@ class ChatController extends GetxController {
   void goToBottom() {
     if (chats.isEmpty) return;
 
-    for (var t in [200, 400, 800, 1000]) {
+    for (var t in [100, 200, 400, 800, 1000]) {
       Future.delayed(
         Duration(milliseconds: t),
         () {
           if (chats.isNotEmpty) {
             try {
               scrollController.animateTo(
-                scrollController.position.minScrollExtent,
-                duration: const Duration(milliseconds: 300),
+                0, // scrollController.position.minScrollExtent,
+                duration: const Duration(milliseconds: 200),
                 curve: Curves.easeInOut,
               );
             } catch (e) {
               //
             }
+            if (t == 1000 && scrollController.position.minScrollExtent > 0) goToBottom();
           }
         },
       );
@@ -298,10 +305,12 @@ class ChatController extends GetxController {
 
   void goToMessageView(ChatList? userDetail) {
     if (userDetail != null) {
+      totalRecords = 0;
       otherUser.value = userDetail;
       isLoading.value = true;
+      chats.clear();
       Get.to(() => ConversationScreen());
-      getMessageList();
+      getMessageList(isClear: true);
     }
   }
 
@@ -324,6 +333,7 @@ class ChatController extends GetxController {
     searchController.dispose();
     chatMsgController.dispose();
     refreshController.dispose();
+    refreshController2.dispose();
     super.onClose();
   }
 }
