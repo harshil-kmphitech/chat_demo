@@ -10,7 +10,7 @@ class ConversationScreen extends GetView<ChatController> {
       onPopInvokedWithResult: (didPop, result) {
         controller.getChatUserList();
         printAction("------------roomLeave");
-        controller.socket.emit(SocketKey.roomLeave, {'userId': controller.user.data?.id});
+        controller.socket.emit(SocketKey.roomLeave, {'userId': controller.user.data?.id, 'roomId': controller.otherUser.value.roomId});
       },
       child: Scaffold(
         backgroundColor: Colors.white,

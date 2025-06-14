@@ -47,6 +47,8 @@ class SocketKey {
   static const socketJoin = "socketJoin";
   static const socketLeave = "socketLeave";
   static const sendMessage = "sendMessage";
+  static const setRoomJoin = "setRoomJoin";
+  static const setRoomLeave = "setRoomLeave";
   static const setNewMessage = "setNewMessage";
   static const setSocketJoin = "setSocketJoin";
   static const setSocketLeave = "setSocketLeave";

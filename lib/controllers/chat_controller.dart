@@ -1,10 +1,10 @@
+import 'package:chat_demo/helpers/all.dart';
+import 'package:chat_demo/models/authModel/auth_model.dart';
 import 'package:chat_demo/models/chatModel/chat_message_model.dart';
 import 'package:chat_demo/models/chatModel/chat_user_model.dart';
 import 'package:chat_demo/ui/chat/conversation_screen.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
-import 'package:chat_demo/helpers/all.dart';
-import 'package:chat_demo/models/authModel/auth_model.dart';
 
 class ChatController extends GetxController {
   AuthModel user = AuthModel.fromJson({});
@@ -50,6 +50,10 @@ class ChatController extends GetxController {
       socket.on(SocketKey.setSocketJoin, (data) => printAction('-----setSocketJoin: $data'));
 
       socket.on(SocketKey.setSocketLeave, (data) => printAction('-----setSocketLeave: $data'));
+
+      socket.on(SocketKey.setRoomJoin, (data) => printAction('-----setRoomJoin: $data'));
+
+      socket.on(SocketKey.setRoomLeave, (data) => printAction('-----setRoomLeave: $data'));
 
       socket.on(SocketKey.setChatUserList, (data) {
         if (!socket.connected) connectToSocket();
