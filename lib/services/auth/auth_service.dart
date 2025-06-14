@@ -17,5 +17,6 @@ abstract class AuthService {
   Future<AuthModel> login({
     @Field() required String pass,
     @Field() required String email,
+    @Field() required String deviceToken,
   });
 }

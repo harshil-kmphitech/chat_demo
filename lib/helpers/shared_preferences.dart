@@ -14,6 +14,16 @@ extension SharedPreferencesX on SharedPreferences {
     }
   }
 
+  String? get getFcmToken => getString(KeyName.fcmToken);
+
+  set setFcmToken(String? value) {
+    if (value == null) {
+      remove(KeyName.fcmToken);
+    } else {
+      setString(KeyName.fcmToken, value);
+    }
+  }
+
   bool? get getIsUserLogin => getBool(KeyName.isUserLogin);
 
   set setIsUserLogin(bool? value) {

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:chat_demo/helpers/all.dart';
 import 'package:chat_demo/models/authModel/auth_model.dart';
+import 'package:chat_demo/notification/notification.dart';
 import 'package:chat_demo/services/auth/auth_service.dart';
 import 'package:chat_demo/ui/chat/chat_users_screen.dart';
 
@@ -13,6 +14,7 @@ class AuthController extends GetxController {
         .login(
       pass: 'f925916e2754e5e03f75dd58a5733251',
       email: '$email@gmail.com',
+      deviceToken: getIt<SharedPreferences>().getFcmToken ?? '-',
     )
         .handler(
       null,
@@ -35,6 +37,7 @@ class AuthController extends GetxController {
   @override
   void onReady() {
     // if (getIt<SharedPreferences>().getIsUserLogin ?? false) Get.offAll(ChatUsersScreen());
+    NotificationService().initialize();
 
     super.onReady();
   }

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1033685270230",
+    "project_id": "capableman-4b6ae",
+    "storage_bucket": "capableman-4b6ae.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1033685270230:android:2139d40b80a90c48415377",
+        "android_client_info": {
+          "package_name": "com.app.capable_man"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBCcxP_ZB6gpNPyNyMZp8-rMLdRzPdJvfc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

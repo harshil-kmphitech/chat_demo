@@ -27,6 +27,7 @@ class _AuthService implements AuthService {
   Future<AuthModel> login({
     required String pass,
     required String email,
+    required String deviceToken,
   }) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
@@ -34,6 +35,7 @@ class _AuthService implements AuthService {
     final _data = {
       'pass': pass,
       'email': email,
+      'deviceToken': deviceToken,
     };
     final _options = _setStreamType<AuthModel>(Options(
       method: 'POST',

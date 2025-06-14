@@ -1,13 +1,14 @@
+import 'package:chat_demo/helpers/all.dart';
+import 'package:chat_demo/helpers/injectable/injectable.config.dart';
 import 'package:chat_demo/ui/auth/login_screen.dart';
 import 'package:dio/dio.dart' as dio;
 import 'package:dio_smart_retry/dio_smart_retry.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:get_it/get_it.dart';
 import 'package:injectable/injectable.dart' as i;
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
-import 'package:chat_demo/helpers/all.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:chat_demo/helpers/injectable/injectable.config.dart';
 
 import 'Interceptor/token_interceptor.dart';
 
@@ -16,6 +17,8 @@ final getIt = GetIt.instance;
 @i.injectableInit
 Future<void> configuration() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  await Firebase.initializeApp();
 
   getIt.init();
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);

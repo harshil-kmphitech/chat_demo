@@ -33,6 +33,7 @@ class KeyName {
 
   static const token = "token";
   static const userId = "userId";
+  static const fcmToken = "fcmToken";
   static const loginData = "loginData";
   static const isUserLogin = "isUserLogin";
 }
