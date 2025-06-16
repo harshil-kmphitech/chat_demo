@@ -219,7 +219,15 @@ class ChatController extends GetxController {
       'search': '',
     };
 
-    if (isClear) socket.emit(SocketKey.roomJoin, {'userId': user.data?.id, 'roomId': otherUser.value.roomId});
+    if (isClear) {
+      printAction("------------roomJoin");
+      socket.emit(SocketKey.roomJoin, {
+        'userId': user.data?.id,
+        'roomId': otherUser.value.roomId,
+        'receiver': otherUser.value.chatDetails?.userId,
+        'chatType': otherUser.value.chatType ?? 'Personal', // 'Group' or 'Personal'
+      });
+    }
     socket.emit(SocketKey.getMessageList, data);
   }
 
